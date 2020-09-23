@@ -17,7 +17,13 @@
 //  Sven Woltmann - for the fast Java Implementation
 //  https://github.com/SvenWoltmann/color-thief-java
 
+#if os(OSX)
+import AppKit
+public typealias UIImage = NSImage
+public typealias UIColor = NSColor
+#else
 import UIKit
+#endif
 
 public class ColorThief {
 
@@ -86,9 +92,12 @@ public class ColorThief {
     }
 
     static func makeBytes(from image: UIImage) -> [UInt8]? {
-        guard let cgImage = image.cgImage else {
-            return nil
-        }
+        #if os(OSX)
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        #else
+        guard let cgImage = image.cgImage else { return nil }
+        #endif
+
         if isCompatibleImage(cgImage) {
             return makeBytesFromCompatibleImage(cgImage)
         } else {
